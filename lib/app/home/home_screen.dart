@@ -1,33 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:unsplash_client_the_sequel/app/home/search_query_parameters.dart';
+import 'package:unsplash_client_the_sequel/app/home/home_screen_state.dart';
+import 'package:unsplash_client_the_sequel/main.dart';
 
 enum Actions {
   nextPage,
   previousPage,
 }
 
-SearchQueryParams pageReducer(SearchQueryParams state, dynamic action) {
+HomeScreenState pageReducer(HomeScreenState state, dynamic action) {
+  if (action is HomeScreenState) {
+    return action;
+  }
+
   if (action == Actions.nextPage) {
-    return SearchQueryParams(state.searchQuery, state.page + 1);
+    return HomeScreenState.fromState(state, page: state.page + 1);
   }
   if (action == Actions.previousPage) {
-    return SearchQueryParams(state.searchQuery, state.page - 1);
+    return HomeScreenState.fromState(state, page: state.page + 1);
   }
 
   return state;
 }
 
-final store = Store<SearchQueryParams>(pageReducer,
-    initialState: const SearchQueryParams("", 1));
+final store = Store<HomeScreenState>(pageReducer,
+    initialState: const HomeScreenState(null, 1));
 
 class ScreenHome extends StatelessWidget {
   const ScreenHome({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return StoreProvider<SearchQueryParams>(
+    return Container(
+      color: Colors.grey,
+    );
+  }
+}
+
+/* return StoreProvider<HomeScreenState>(
       store: store,
       child: Container(
         color: Colors.grey,
@@ -35,21 +46,33 @@ class ScreenHome extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              StoreConnector<SearchQueryParams, VoidCallback>(
-                converter: (store) =>
-                    () => store.dispatch(Actions.previousPage),
+              StoreConnector<HomeScreenState, VoidCallback>(
+                converter: (store) => () {
+                  imagesPageUseCase.getImagesPage(page: 2, perPage: 10);
+                  store.dispatch(HomeScreenState.fromState(store.state,
+                      searchQuery: "cat"));
+                },
                 builder: (context, callback) {
+                  print(store.state.searchQuery);
+
                   return TextButton(
                       onPressed: callback, child: const Text("-"));
                 },
               ),
-              StoreConnector<SearchQueryParams, String>(
-                  converter: (store) => store.state.page.toString(),
-                  builder: (context, page) {
-                    return Text(page);
-                  }),
-              StoreConnector<SearchQueryParams, VoidCallback>(
-                converter: (store) => () => store.dispatch(Actions.nextPage),
+              StoreConnector<HomeScreenState, String>(
+                converter: (store) => store.state.page.toString(),
+                builder: (context, page) {
+                  return Text(
+                    "Page: ${store.state.page} searchQuery: ${store.state.searchQuery}",
+                    style: const TextStyle(inherit: false),
+                  );
+                },
+              ),
+              StoreConnector<HomeScreenState, VoidCallback>(
+                converter: (store) => () {
+                  store.dispatch(HomeScreenState.fromState(store.state,
+                      searchQuery: "doggo"));
+                },
                 builder: (context, callback) {
                   return TextButton(
                       onPressed: callback, child: const Text("+"));
@@ -59,6 +82,4 @@ class ScreenHome extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
+    );*/
