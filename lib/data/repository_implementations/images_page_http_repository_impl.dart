@@ -63,7 +63,7 @@ class ImagesPageHttpRepositoryImpl implements IImagesPageRepository {
     for (ImageInfoModel model in models) {
       imageInfoEntitiesList.add(ImageInfoMapper.map(model));
 
-      print("${model.width} ${model.urlThumb} ${model.username}");
+      //print("${model.width} ${model.urlThumb} ${model.username}");
     }
 
     return imageInfoEntitiesList;
