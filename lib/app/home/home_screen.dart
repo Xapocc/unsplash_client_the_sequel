@@ -55,79 +55,87 @@ class ScreenHome extends StatelessWidget {
     return ListView.builder(
       physics: const ClampingScrollPhysics(),
       itemCount: listLength,
-      itemBuilder: (BuildContext context, int index) => Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.transparent],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
+      itemBuilder: (BuildContext context, int index) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (index == 0) homeAppBar(),
+          imageCard(state, index),
+          if (index == listLength - 1)
+            Container(height: MediaQuery.of(context).size.width * 0.15),
+        ],
+      ),
+    );
+  }
+
+  Widget imageCard(HomeScreenState state, int index) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.transparent],
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+        ),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: AspectRatio(
+              aspectRatio: state.imagesInfoEntitiesList[index].width /
+                  state.imagesInfoEntitiesList[index].height,
+              child: Image.network(
+                state.imagesInfoEntitiesList[index].urlSmall,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (index == 0) homeAppBar(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: AspectRatio(
-                aspectRatio: state.imagesInfoEntitiesList[index].width /
-                    state.imagesInfoEntitiesList[index].height,
-                child: Image.network(
-                  state.imagesInfoEntitiesList[index].urlSmall,
-                  fit: BoxFit.cover,
+          Padding(
+            padding: const EdgeInsets.only(
+              bottom: 8.0,
+              left: 8.0,
+              right: 8.0,
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 15,
+                  child: Container(
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
+                    clipBehavior: Clip.hardEdge,
+                    child: Image.network(
+                        state.imagesInfoEntitiesList[index].userPpLarge),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                bottom: 8.0,
-                left: 8.0,
-                right: 8.0,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 15,
-                    child: Container(
-                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                      clipBehavior: Clip.hardEdge,
-                      child: Image.network(
-                          state.imagesInfoEntitiesList[index].userPpLarge),
+                Expanded(
+                  flex: 85,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          state.imagesInfoEntitiesList[index].username,
+                          style: const TextStyle(
+                              inherit: false,
+                              color: Colors.black54,
+                              fontSize: 18.0),
+                        ),
+                        Text(
+                          "[${state.imagesInfoEntitiesList[index].userUsername}]",
+                          style: const TextStyle(
+                              inherit: false,
+                              color: Colors.black26,
+                              fontSize: 16.0),
+                        ),
+                      ],
                     ),
                   ),
-                  Expanded(
-                    flex: 85,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            state.imagesInfoEntitiesList[index].username,
-                            style: const TextStyle(
-                                inherit: false,
-                                color: Colors.black54,
-                                fontSize: 18.0),
-                          ),
-                          Text(
-                            "[${state.imagesInfoEntitiesList[index].userUsername}]",
-                            style: const TextStyle(
-                                inherit: false,
-                                color: Colors.black26,
-                                fontSize: 16.0),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            if (index == listLength - 1)
-              Container(height: MediaQuery.of(context).size.width * 0.15),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
