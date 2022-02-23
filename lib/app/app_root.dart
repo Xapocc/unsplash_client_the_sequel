@@ -11,7 +11,7 @@ class AppRoot extends StatelessWidget {
       home: SafeArea(
         child: Container(
           color: Colors.white,
-          child:  ScreenHome(),
+          child: const ScreenHome(),
         ),
       ),
     );
