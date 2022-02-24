@@ -8,6 +8,7 @@ enum HomeScreenActions {
   previousPage,
   nextPageTurbo,
   prevPageTurbo,
+  toggleSearchField,
 }
 
 abstract class HomeScreenRedux {
@@ -53,6 +54,13 @@ abstract class HomeScreenRedux {
       );
     }
 
+    if (action == HomeScreenActions.toggleSearchField) {
+      return HomeScreenState.fromState(
+        state,
+        showSearchField: !state.showSearchField,
+      );
+    }
+
     return state;
   }
 
@@ -67,5 +75,11 @@ abstract class HomeScreenRedux {
   static void dispatchAction(
       Store<HomeScreenState> store, HomeScreenActions action) {
     store.dispatch(action);
+  }
+
+  static void dispatchNewSearch(
+      Store<HomeScreenState> store, String? searchQuery) {
+    store.dispatch(
+        HomeScreenState.fromState(store.state, searchQuery: searchQuery));
   }
 }

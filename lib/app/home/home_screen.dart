@@ -169,14 +169,117 @@ class ScreenHome extends StatelessWidget {
   }
 
   Widget homeAppBar() {
-    return AppBar(
-      backgroundColor: Colors.black87,
-      shadowColor: Colors.transparent,
-      centerTitle: false,
-      title: const Text(
-        "Unsplash Client: The Sequel",
-        style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
-      ),
+    return Column(
+      children: [
+        AppBar(
+          backgroundColor: Colors.black87,
+          shadowColor: Colors.transparent,
+          centerTitle: false,
+          title: const FittedBox(
+            child: Text(
+              "Unsplash Client: The Sequel",
+              style:
+                  TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: StoreConnector<HomeScreenState, VoidCallback>(
+                converter: (store) => () => HomeScreenRedux.dispatchAction(
+                    store, HomeScreenActions.toggleSearchField),
+                builder: (context, callback) => TextButton(
+                  onPressed: callback,
+                  style: ButtonStyle(
+                    overlayColor: MaterialStateColor.resolveWith(
+                        (states) => Colors.white12),
+                    shape: MaterialStateProperty.resolveWith(
+                      (states) => const CircleBorder(),
+                    ),
+                  ),
+                  child: StoreConnector<HomeScreenState, bool>(
+                    converter: (store) => store.state.showSearchField,
+                    builder: (context, showSearchField) {
+                      return showSearchField
+                          ? const Icon(
+                              Icons.keyboard_arrow_up,
+                              color: Colors.white70,
+                            )
+                          : const Icon(
+                              Icons.search,
+                              color: Colors.white70,
+                            );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        StoreConnector<HomeScreenState, HomeScreenState>(
+          converter: (store) => store.state,
+          builder: (context, state) {
+
+            TextEditingController searchController = TextEditingController(text: state.searchQuery);
+
+            return state.showSearchField
+                ? AppBar(
+                    backgroundColor: Colors.white,
+                    shadowColor: Colors.transparent,
+                    flexibleSpace: Row(
+                      children: [
+                        Expanded(
+                          flex: 85,
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 4.0, left: 8.0, right: 8.0),
+                              child: TextField(
+                                  controller: searchController,
+                                  cursorColor: Colors.black87,
+                                  decoration: const InputDecoration(
+                                    hintText: "Search for...",
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        Expanded(
+                          flex: 15,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: StoreConnector<HomeScreenState, VoidCallback>(
+                                  converter: (store) => () {
+                                    HomeScreenRedux.dispatchNewSearch(store, searchController.text);
+                                  },
+                                  builder: (context, callback) => TextButton(
+                                  style: ButtonStyle(
+                                      overlayColor:
+                                          MaterialStateColor.resolveWith(
+                                              (states) => Colors.black12),
+                                      shape: MaterialStateProperty.resolveWith(
+                                          (states) => const CircleBorder()),
+                                      foregroundColor:
+                                          MaterialStateColor.resolveWith(
+                                              (states) => Colors.black87)),
+                                  onPressed: callback,
+                                  child: const Icon(Icons.search),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container();
+          },
+        ),
+      ],
     );
   }
 
