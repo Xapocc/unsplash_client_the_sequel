@@ -65,8 +65,10 @@ abstract class HomeScreenRedux {
   }
 
   static void loadPage(Store<HomeScreenState> store) async {
-    List<ImageInfoEntity> list =
-        await imagesPageUseCase.getImagesPage(page: store.state.page);
+    List<ImageInfoEntity> list = await imagesPageUseCase.getImagesPage(
+      page: store.state.page,
+      query: store.state.searchQuery,
+    );
 
     store.dispatch(HomeScreenState.fromState(store.state,
         imagesInfoEntitiesList: list, isLoadingCompleted: true));
@@ -79,7 +81,11 @@ abstract class HomeScreenRedux {
 
   static void dispatchNewSearch(
       Store<HomeScreenState> store, String? searchQuery) {
-    store.dispatch(
-        HomeScreenState.fromState(store.state, searchQuery: searchQuery));
+    store.dispatch(HomeScreenState.fromState(
+      store.state,
+      searchQuery: searchQuery,
+      isLoadingCompleted: false,
+      page: 1,
+    ));
   }
 }

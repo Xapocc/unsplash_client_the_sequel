@@ -80,14 +80,14 @@ class ScreenHome extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: AspectRatio(
-              aspectRatio: state.imagesInfoEntitiesList[index].width /
-                  state.imagesInfoEntitiesList[index].height,
-              child: Image.network(
-                state.imagesInfoEntitiesList[index].urlSmall,
+            child: Image.network(state.imagesInfoEntitiesList[index].urlSmall,
                 fit: BoxFit.cover,
-              ),
-            ),
+                loadingBuilder: (context, child, loadingEvent) {
+              if (loadingEvent == null) return child;
+              return const Center(
+                child: SizedBox(width: 100, height: 100, child: CircularProgressIndicator()),
+              );
+            }),
           ),
           Padding(
             padding: const EdgeInsets.only(
@@ -219,8 +219,8 @@ class ScreenHome extends StatelessWidget {
         StoreConnector<HomeScreenState, HomeScreenState>(
           converter: (store) => store.state,
           builder: (context, state) {
-
-            TextEditingController searchController = TextEditingController(text: state.searchQuery);
+            TextEditingController searchController =
+                TextEditingController(text: state.searchQuery);
 
             return state.showSearchField
                 ? AppBar(
@@ -236,27 +236,29 @@ class ScreenHome extends StatelessWidget {
                               padding: const EdgeInsets.only(
                                   top: 4.0, left: 8.0, right: 8.0),
                               child: TextField(
-                                  controller: searchController,
-                                  cursorColor: Colors.black87,
-                                  decoration: const InputDecoration(
-                                    hintText: "Search for...",
-                                    border: InputBorder.none,
-                                  ),
+                                controller: searchController,
+                                cursorColor: Colors.black87,
+                                decoration: const InputDecoration(
+                                  hintText: "Search for...",
+                                  border: InputBorder.none,
                                 ),
                               ),
                             ),
                           ),
+                        ),
                         Expanded(
                           flex: 15,
                           child: AspectRatio(
                             aspectRatio: 1,
                             child: Padding(
                               padding: const EdgeInsets.all(2.0),
-                              child: StoreConnector<HomeScreenState, VoidCallback>(
-                                  converter: (store) => () {
-                                    HomeScreenRedux.dispatchNewSearch(store, searchController.text);
-                                  },
-                                  builder: (context, callback) => TextButton(
+                              child:
+                                  StoreConnector<HomeScreenState, VoidCallback>(
+                                converter: (store) => () {
+                                  HomeScreenRedux.dispatchNewSearch(
+                                      store, searchController.text);
+                                },
+                                builder: (context, callback) => TextButton(
                                   style: ButtonStyle(
                                       overlayColor:
                                           MaterialStateColor.resolveWith(
