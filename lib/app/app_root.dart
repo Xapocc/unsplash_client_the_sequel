@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:unsplash_client_the_sequel/app/home/home_screen.dart';
+import 'package:unsplash_client_the_sequel/app/scene/home/home_screen.dart';
 
 class AppRoot extends StatelessWidget {
   const AppRoot({Key? key}) : super(key: key);

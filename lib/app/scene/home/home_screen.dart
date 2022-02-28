@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:unsplash_client_the_sequel/app/home/redux/home_screen_redux.dart';
-import 'package:unsplash_client_the_sequel/app/home/redux/home_screen_state.dart';
+import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_redux.dart';
+import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_state.dart';
 
 class ScreenHome extends StatelessWidget {
   const ScreenHome({Key? key}) : super(key: key);
@@ -85,7 +85,10 @@ class ScreenHome extends StatelessWidget {
                 loadingBuilder: (context, child, loadingEvent) {
               if (loadingEvent == null) return child;
               return const Center(
-                child: SizedBox(width: 100, height: 100, child: CircularProgressIndicator()),
+                child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator()),
               );
             }),
           ),

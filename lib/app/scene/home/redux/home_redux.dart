@@ -1,4 +1,4 @@
-import 'package:unsplash_client_the_sequel/app/home/redux/home_screen_state.dart';
+import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_state.dart';
 import 'package:redux/redux.dart';
 import 'package:unsplash_client_the_sequel/domain/entities/image_info_entity.dart';
 import 'package:unsplash_client_the_sequel/main.dart';
@@ -13,11 +13,11 @@ enum HomeScreenActions {
 
 abstract class HomeScreenRedux {
   static Store<HomeScreenState> get newStore => Store<HomeScreenState>(
-        HomeScreenRedux.homeReducer,
+        HomeScreenRedux.reducer,
         initialState: const HomeScreenState(),
       );
 
-  static HomeScreenState homeReducer(HomeScreenState state, dynamic action) {
+  static HomeScreenState reducer(HomeScreenState state, dynamic action) {
     if (action is HomeScreenState) {
       return action;
     }
