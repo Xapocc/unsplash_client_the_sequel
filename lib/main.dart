@@ -6,5 +6,5 @@ import 'package:unsplash_client_the_sequel/domain/use_cases/Images_page_use_case
 ImagesPageUseCase imagesPageUseCase = ImagesPageUseCase(ImagesPageHttpRepositoryImpl());
 
 void main() {
-  runApp(const AppRoot());
+  runApp(AppRoot());
 }
