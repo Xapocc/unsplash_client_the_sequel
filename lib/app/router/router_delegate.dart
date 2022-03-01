@@ -3,6 +3,7 @@ import 'package:redux/redux.dart';
 import 'package:unsplash_client_the_sequel/app/router/router_redux/router_redux.dart';
 import 'package:unsplash_client_the_sequel/app/router/router_redux/router_state.dart';
 import 'package:unsplash_client_the_sequel/app/scene/home/home_screen.dart';
+import 'package:unsplash_client_the_sequel/app/scene/picture_preview/picture_preview_screen.dart';
 
 class RootRouterDelegate extends RouterDelegate<RouterState> {
   final GlobalKey<NavigatorState> _navigatorKey;
@@ -10,16 +11,17 @@ class RootRouterDelegate extends RouterDelegate<RouterState> {
 
   RootRouterDelegate(
       GlobalKey<NavigatorState> navigatorKey, Store<RouterState> routerStore)
-      : _navigatorKey = navigatorKey, _routerStore = routerStore;
+      : _navigatorKey = navigatorKey,
+        _routerStore = routerStore;
 
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
 
   @override
   Widget build(BuildContext context) => Navigator(
-    key: navigatorKey,
-    pages: List.from(_extraPages),
-    onPopPage: _onPopPageParser,
-  );
+        key: navigatorKey,
+        pages: List.from(_extraPages),
+        onPopPage: _onPopPageParser,
+      );
 
   bool _onPopPageParser(Route<dynamic> route, dynamic result) {
     if (!route.didPop(result)) return false;
@@ -40,8 +42,8 @@ class RootRouterDelegate extends RouterDelegate<RouterState> {
     if (_routerStore.state is PicturePreviewScreenRouterState) {
       return [
         const MaterialPage(
-          child: Center(child: CircularProgressIndicator(),),
-        )
+          child: ScreenPicturePreview(),
+        ),
       ];
     }
 

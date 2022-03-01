@@ -13,9 +13,10 @@ abstract class RouterRedux {
       );
 
   static RouterState reducer(RouterState state, dynamic action) {
-    if(action == Actions.goToPicturePreviewScreen) {
-      return PicturePreviewScreenRouterState();
+    if(action is String) {
+      return PicturePreviewScreenRouterState(action);
     }
+
     if(action == Actions.goToHomeScreen) {
       return HomeScreenRouterState();
     }
@@ -27,7 +28,7 @@ abstract class RouterRedux {
     store.dispatch(Actions.goToHomeScreen);
   }
 
-  static void goToPicturePreviewScreen(Store<RouterState> store) {
-    store.dispatch(Actions.goToPicturePreviewScreen);
+  static void goToPicturePreviewScreen(Store<RouterState> store, String pictureUrl) {
+    store.dispatch(pictureUrl);
   }
 }

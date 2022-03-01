@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:unsplash_client_the_sequel/app/router/router_redux/router_redux.dart';
+import 'package:unsplash_client_the_sequel/app/router/router_redux/router_state.dart';
 import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_redux.dart';
 import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_state.dart';
 
@@ -59,7 +61,14 @@ class ScreenHome extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (index == 0) homeAppBar(),
-          imageCard(state, index),
+          StoreConnector<RouterState, VoidCallback>(
+            converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
+                store, state.imagesInfoEntitiesList[index].urlFull),
+            builder: (context, callback) => TextButton(
+              onPressed: callback,
+              child: imageCard(state, index),
+            ),
+          ),
           if (index == listLength - 1)
             Container(height: MediaQuery.of(context).size.width * 0.15),
         ],
