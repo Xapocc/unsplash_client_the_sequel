@@ -65,6 +65,7 @@ class ScreenHome extends StatelessWidget {
             converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
                 store, state.imagesInfoEntitiesList[index].urlFull),
             builder: (context, callback) => TextButton(
+              style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
               onPressed: callback,
               child: imageCard(state, index),
             ),

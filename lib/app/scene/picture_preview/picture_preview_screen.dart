@@ -9,16 +9,41 @@ class ScreenPicturePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black,
-      child: Center(
-        child: StoreConnector<RouterState, String>(
-          converter: (store) => store.state is PicturePreviewScreenRouterState
-              ? (store.state as PicturePreviewScreenRouterState).pictureUrl
-              : "",
-          builder: (context, url) {
-            if (url.isEmpty) return Container();
-            return Image.network(url);
-          },
-        ),
+      child: Stack(
+        children: [
+          Center(
+            child: StoreConnector<RouterState, String>(
+              converter: (store) => store.state
+                      is PicturePreviewScreenRouterState
+                  ? (store.state as PicturePreviewScreenRouterState).pictureUrl
+                  : "",
+              builder: (context, url) {
+                if (url.isEmpty) return Container();
+                return Image.network(
+                  url,
+                  loadingBuilder: (context, child, loadingProcess) {
+                    if (loadingProcess?.expectedTotalBytes == null) {
+                      return InteractiveViewer(
+                          maxScale: 10, child: Center(child: child));
+                    }
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white54,
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+          SizedBox(
+            height: AppBar().preferredSize.height,
+            child: AppBar(
+              shadowColor: Colors.transparent,
+              backgroundColor: Colors.black12,
+            ),
+          )
+        ],
       ),
     );
   }
