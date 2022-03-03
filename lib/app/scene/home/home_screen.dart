@@ -6,7 +6,7 @@ import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_redux.dart'
 import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_state.dart';
 
 class ScreenHome extends StatelessWidget {
-  const ScreenHome({Key? key}) : super(key: key);
+  ScreenHome({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +31,13 @@ class ScreenHome extends StatelessWidget {
         children: [
           mainListView(state),
           navigationButtons(context),
+          Align(
+            alignment: Alignment.topCenter,
+            child: Visibility(
+              visible: !state.hideAppBar,
+              child: homeAppBar(),
+            ),
+          ),
         ],
       ),
     );
@@ -52,28 +59,55 @@ class ScreenHome extends StatelessWidget {
   }
 
   Widget mainListView(HomeScreenState state) {
-    int listLength = state.imagesInfoEntitiesList.length;
+    return StoreConnector<HomeScreenState, VoidCallback>(
+      converter: (store) => () => HomeScreenRedux.turnAppBar(store),
+      builder: (context, callback) {
+        ScrollController controller = ScrollController();
 
-    return ListView.builder(
-      physics: const ClampingScrollPhysics(),
-      itemCount: listLength,
-      itemBuilder: (BuildContext context, int index) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (index == 0) homeAppBar(),
-          StoreConnector<RouterState, VoidCallback>(
-            converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
-                store, state.imagesInfoEntitiesList[index].urlFull),
-            builder: (context, callback) => TextButton(
-              style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
-              onPressed: callback,
-              child: imageCard(state, index),
-            ),
+        int listLength = state.imagesInfoEntitiesList.length;
+
+        controller.addListener(() {
+          if (!controller.hasClients) return;
+
+          if (controller.position.userScrollDirection.name == "reverse" &&
+              state.hideAppBar == false) {
+            callback();
+          }
+
+          if (controller.position.userScrollDirection.name == "forward" &&
+              state.hideAppBar == true) {
+            callback();
+          }
+        });
+
+        return ListView.builder(
+          controller: controller,
+          physics: const ClampingScrollPhysics(),
+          itemCount: listLength,
+          itemBuilder: (BuildContext context, int index) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (index == 0 && !state.hideAppBar)
+                SizedBox(
+                  height: AppBar().preferredSize.height *
+                      (state.showSearchField ? 2 : 1),
+                ),
+              StoreConnector<RouterState, VoidCallback>(
+                converter: (store) => () =>
+                    RouterRedux.goToPicturePreviewScreen(
+                        store, state.imagesInfoEntitiesList[index].urlFull),
+                builder: (context, callback) => TextButton(
+                  style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
+                  onPressed: callback,
+                  child: imageCard(state, index),
+                ),
+              ),
+              if (index == listLength - 1)
+                Container(height: MediaQuery.of(context).size.width * 0.15),
+            ],
           ),
-          if (index == listLength - 1)
-            Container(height: MediaQuery.of(context).size.width * 0.15),
-        ],
-      ),
+        );
+      },
     );
   }
 

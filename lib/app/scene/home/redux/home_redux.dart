@@ -27,6 +27,8 @@ abstract class HomeScreenRedux {
         state,
         page: state.page + 1,
         isLoadingCompleted: false,
+        showSearchField: false,
+        hideAppBar: false,
       );
     }
     if (action == HomeScreenActions.previousPage) {
@@ -35,6 +37,8 @@ abstract class HomeScreenRedux {
         state,
         page: state.page > 1 ? state.page - 1 : 1,
         isLoadingCompleted: false,
+        showSearchField: false,
+        hideAppBar: false,
       );
     }
 
@@ -43,6 +47,8 @@ abstract class HomeScreenRedux {
         state,
         page: state.page + 100,
         isLoadingCompleted: false,
+        showSearchField: false,
+        hideAppBar: false,
       );
     }
     if (action == HomeScreenActions.prevPageTurbo) {
@@ -51,6 +57,8 @@ abstract class HomeScreenRedux {
         state,
         page: state.page > 101 ? state.page - 100 : 1,
         isLoadingCompleted: false,
+        showSearchField: false,
+        hideAppBar: false,
       );
     }
 
@@ -86,6 +94,14 @@ abstract class HomeScreenRedux {
       searchQuery: searchQuery,
       isLoadingCompleted: false,
       page: 1,
+    ));
+  }
+
+  static void turnAppBar(Store<HomeScreenState> store) {
+    store.dispatch(HomeScreenState.fromState(
+      store.state,
+      hideAppBar: !store.state.hideAppBar,
+      showSearchField: false,
     ));
   }
 }
