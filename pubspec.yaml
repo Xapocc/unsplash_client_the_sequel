@@ -27,6 +27,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  get_it: ^7.2.0
   http: ^0.13.4
   flutter_redux: ^0.8.2
   equatable: ^2.0.3

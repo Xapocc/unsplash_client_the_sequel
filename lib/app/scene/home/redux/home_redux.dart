@@ -1,7 +1,8 @@
+import 'package:get_it/get_it.dart';
 import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_state.dart';
 import 'package:redux/redux.dart';
 import 'package:unsplash_client_the_sequel/domain/entities/image_info_entity.dart';
-import 'package:unsplash_client_the_sequel/main.dart';
+import 'package:unsplash_client_the_sequel/domain/use_cases/Images_page_use_case.dart';
 
 enum HomeScreenActions {
   nextPage,
@@ -73,7 +74,7 @@ abstract class HomeScreenRedux {
   }
 
   static void loadPage(Store<HomeScreenState> store) async {
-    List<ImageInfoEntity> list = await imagesPageUseCase.getImagesPage(
+    List<ImageInfoEntity> list = await GetIt.I<ImagesPageUseCase>().getImagesPage(
       page: store.state.page,
       query: store.state.searchQuery,
     );
