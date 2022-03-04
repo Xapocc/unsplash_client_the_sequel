@@ -6,7 +6,7 @@ import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_redux.dart'
 import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_state.dart';
 
 class ScreenHome extends StatelessWidget {
-  ScreenHome({Key? key}) : super(key: key);
+  const ScreenHome({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +30,12 @@ class ScreenHome extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: [
           mainListView(state),
-          navigationButtons(context),
+          navigationButtons(context, state),
           Align(
             alignment: Alignment.topCenter,
             child: Visibility(
               visible: !state.hideAppBar,
-              child: homeAppBar(),
+              child: homeAppBar(context, state),
             ),
           ),
         ],
@@ -92,16 +92,7 @@ class ScreenHome extends StatelessWidget {
                   height: AppBar().preferredSize.height *
                       (state.showSearchField ? 2 : 1),
                 ),
-              StoreConnector<RouterState, VoidCallback>(
-                converter: (store) => () =>
-                    RouterRedux.goToPicturePreviewScreen(
-                        store, state.imagesInfoEntitiesList[index].urlFull),
-                builder: (context, callback) => TextButton(
-                  style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
-                  onPressed: callback,
-                  child: imageCard(state, index),
-                ),
-              ),
+              imageCard(state, index),
               if (index == listLength - 1)
                 Container(height: MediaQuery.of(context).size.width * 0.15),
             ],
@@ -124,17 +115,27 @@ class ScreenHome extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Image.network(state.imagesInfoEntitiesList[index].urlSmall,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingEvent) {
-              if (loadingEvent == null) return child;
-              return const Center(
-                child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CircularProgressIndicator()),
-              );
-            }),
+            child: StoreConnector<RouterState, VoidCallback>(
+              converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
+                  store, state.imagesInfoEntitiesList[index].urlFull),
+              builder: (context, callback) => TextButton(
+                style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
+                onPressed: callback,
+                child: Image.network(
+                  state.imagesInfoEntitiesList[index].urlSmall,
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingEvent) {
+                    if (loadingEvent == null) return child;
+                    return const Center(
+                      child: SizedBox(
+                          width: 100,
+                          height: 100,
+                          child: CircularProgressIndicator()),
+                    );
+                  },
+                ),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(
@@ -187,9 +188,23 @@ class ScreenHome extends StatelessWidget {
     );
   }
 
-  Widget navigationButtons(BuildContext context) {
+  Widget navigationButtons(BuildContext context, HomeScreenState state) {
     TextStyle textStyle = const TextStyle(
         inherit: false, fontWeight: FontWeight.bold, fontSize: 20.0);
+
+    TextStyle textStylePage1 = const TextStyle(
+      inherit: false,
+      fontWeight: FontWeight.bold,
+      fontSize: 16.0,
+    );
+
+    TextStyle textStylePage2 = const TextStyle(
+      inherit: false,
+      fontWeight: FontWeight.bold,
+      fontSize: 12.0,
+    );
+
+    int? maxPages = state.imagesInfoEntitiesList.first.maxPages;
 
     return Container(
       height: MediaQuery.of(context).size.width * 0.15,
@@ -199,14 +214,28 @@ class ScreenHome extends StatelessWidget {
         children: [
           _navigationButton(HomeScreenActions.prevPageTurbo, "<<", textStyle),
           _navigationButton(HomeScreenActions.previousPage, "<", textStyle),
-          StoreConnector<HomeScreenState, String>(
-            converter: (store) => store.state.page.toString(),
-            builder: (context, page) {
-              return TextButton(
-                child: Text(page, style: textStyle),
-                onPressed: null,
-              );
-            },
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white24, Colors.black12],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: TextButton(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("${state.page}", style: textStylePage1),
+                  if (maxPages != null)
+                    Text("$maxPages", style: textStylePage2),
+                ],
+              ),
+              onPressed: null,
+            ),
           ),
           _navigationButton(HomeScreenActions.nextPage, ">", textStyle),
           _navigationButton(HomeScreenActions.nextPageTurbo, ">>", textStyle),
@@ -215,18 +244,20 @@ class ScreenHome extends StatelessWidget {
     );
   }
 
-  Widget homeAppBar() {
+  Widget homeAppBar(BuildContext context, HomeScreenState state) {
     return Column(
       children: [
         AppBar(
           backgroundColor: Colors.black87,
           shadowColor: Colors.transparent,
           centerTitle: false,
-          title: const FittedBox(
+          title: FittedBox(
             child: Text(
-              "Unsplash Client: The Sequel",
-              style:
-                  TextStyle(color: Colors.white70, fontWeight: FontWeight.bold),
+              state.searchQuery?.isEmpty ?? true
+                  ? "Unsplash Client: The Sequel"
+                  : "Search: ${state.searchQuery}",
+              style: const TextStyle(
+                  color: Colors.white70, fontWeight: FontWeight.bold),
             ),
           ),
           actions: [
@@ -337,20 +368,30 @@ class ScreenHome extends StatelessWidget {
     return StoreConnector<HomeScreenState, VoidCallback>(
       converter: (store) => () => HomeScreenRedux.dispatchAction(store, action),
       builder: (context, callback) {
-        return TextButton(
-          style: ButtonStyle(
-            backgroundColor:
-                MaterialStateColor.resolveWith((states) => Colors.white24),
-            shape: MaterialStateProperty.resolveWith(
-                (states) => const CircleBorder()),
-            overlayColor:
-                MaterialStateColor.resolveWith((states) => Colors.white24),
+        return Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.white24, Colors.black12],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+            shape: BoxShape.circle,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(text, style: textStyle),
+          child: TextButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateColor.resolveWith(
+                  (states) => Colors.transparent),
+              shape: MaterialStateProperty.resolveWith(
+                  (states) => const CircleBorder()),
+              overlayColor:
+                  MaterialStateColor.resolveWith((states) => Colors.white24),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(text, style: textStyle),
+            ),
+            onPressed: callback,
           ),
-          onPressed: callback,
         );
       },
     );

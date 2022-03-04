@@ -4,6 +4,7 @@ import 'package:unsplash_client_the_sequel/domain/entities/image_info_entity.dar
 abstract class ImageInfoMapper {
   static ImageInfoEntity map(ImageInfoModel model) {
     return ImageInfoEntity(
+      model.maxPages,
       model.width,
       model.height,
       model.urlRaw,

@@ -31,7 +31,7 @@ class RootRouterDelegate extends RouterDelegate<RouterState> {
 
   List<Page> get _extraPages {
     return [
-      MaterialPage(
+      const MaterialPage(
         child: ScreenHome(),
       ),
       ..._finalPage()

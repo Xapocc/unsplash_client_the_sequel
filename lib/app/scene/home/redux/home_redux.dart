@@ -24,6 +24,12 @@ abstract class HomeScreenRedux {
     }
 
     if (action == HomeScreenActions.nextPage) {
+      if (state.imagesInfoEntitiesList.isEmpty) return state;
+
+      if (state.page == state.imagesInfoEntitiesList.first.maxPages) {
+        return state;
+      }
+
       return HomeScreenState.fromState(
         state,
         page: state.page + 1,
@@ -44,6 +50,24 @@ abstract class HomeScreenRedux {
     }
 
     if (action == HomeScreenActions.nextPageTurbo) {
+      if (state.imagesInfoEntitiesList.isEmpty) return state;
+
+      if (state.imagesInfoEntitiesList.first.maxPages != null) {
+        if (state.page == state.imagesInfoEntitiesList.first.maxPages!) {
+          return state;
+        }
+
+        if (state.page > state.imagesInfoEntitiesList.first.maxPages! - 100) {
+          return HomeScreenState.fromState(
+            state,
+            page: state.imagesInfoEntitiesList.first.maxPages,
+            isLoadingCompleted: false,
+            showSearchField: false,
+            hideAppBar: false,
+          );
+        }
+      }
+
       return HomeScreenState.fromState(
         state,
         page: state.page + 100,
@@ -74,9 +98,11 @@ abstract class HomeScreenRedux {
   }
 
   static void loadPage(Store<HomeScreenState> store) async {
-    List<ImageInfoEntity> list = await GetIt.I<ImagesPageUseCase>().getImagesPage(
+    List<ImageInfoEntity> list =
+        await GetIt.I<ImagesPageUseCase>().getImagesPage(
       page: store.state.page,
       query: store.state.searchQuery,
+      perPage: 25,
     );
 
     store.dispatch(HomeScreenState.fromState(store.state,

@@ -1,4 +1,6 @@
 class ImageInfoEntity {
+  final int? _maxPages;
+
   final double _width;
   final double _height;
 
@@ -15,6 +17,8 @@ class ImageInfoEntity {
   final String _userPpSmall;
   final String _userPpMedium;
   final String _userPpLarge;
+
+  int? get maxPages => _maxPages;
 
   double get width => _width;
 
@@ -43,6 +47,7 @@ class ImageInfoEntity {
   String get userPpLarge => _userPpLarge;
 
   ImageInfoEntity(
+    this._maxPages,
     this._width,
     this._height,
     this._urlRaw,
