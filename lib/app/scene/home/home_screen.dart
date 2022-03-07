@@ -217,7 +217,9 @@ class ScreenHome extends StatelessWidget {
       fontSize: 12.0,
     );
 
-    int? maxPages = state.imagesInfoEntitiesList.first.maxPages;
+    int? maxPages = state.imagesInfoEntitiesList.isNotEmpty
+        ? state.imagesInfoEntitiesList.first.maxPages
+        : null;
 
     return Container(
       height: MediaQuery.of(context).size.width * 0.15,
