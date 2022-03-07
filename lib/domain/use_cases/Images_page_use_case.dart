@@ -8,7 +8,16 @@ class ImagesPageUseCase {
 
   IImagesPageRepository get repository => _repository;
 
-  Future<List<ImageInfoEntity>> getImagesPage(
-          {String? query, int page = 1, int perPage = 10}) =>
-      _repository.getImagesPage(query: query, page: page, perPage: perPage);
+  Future<List<ImageInfoEntity>> getImagesPage({
+    String? query,
+    int page = 1,
+    int perPage = 10,
+    bool searchForUser = false,
+  }) =>
+      _repository.getImagesPage(
+        query: query,
+        page: page,
+        perPage: perPage,
+        searchForUser: searchForUser,
+      );
 }

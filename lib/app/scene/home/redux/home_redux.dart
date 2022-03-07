@@ -103,6 +103,7 @@ abstract class HomeScreenRedux {
       page: store.state.page,
       query: store.state.searchQuery,
       perPage: 25,
+      searchForUser: store.state.searchForUser,
     );
 
     store.dispatch(HomeScreenState.fromState(store.state,
@@ -124,11 +125,29 @@ abstract class HomeScreenRedux {
     ));
   }
 
+  static void dispatchNewUserSearch(
+      Store<HomeScreenState> store, String? searchQuery) {
+    store.dispatch(HomeScreenState.fromState(
+      store.state,
+      searchQuery: searchQuery,
+      isLoadingCompleted: false,
+      page: 1,
+      searchForUser: true,
+    ));
+  }
+
   static void turnAppBar(Store<HomeScreenState> store) {
     store.dispatch(HomeScreenState.fromState(
       store.state,
       hideAppBar: !store.state.hideAppBar,
       showSearchField: false,
+    ));
+  }
+
+  static void turnSearchMode(Store<HomeScreenState> store) {
+    store.dispatch(HomeScreenState.fromState(
+      store.state,
+      searchForUser: !store.state.searchForUser,
     ));
   }
 }

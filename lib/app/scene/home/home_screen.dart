@@ -137,50 +137,63 @@ class ScreenHome extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-              bottom: 8.0,
-              left: 8.0,
-              right: 8.0,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 15,
-                  child: Container(
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    clipBehavior: Clip.hardEdge,
-                    child: Image.network(
-                        state.imagesInfoEntitiesList[index].userPpLarge),
-                  ),
+          StoreConnector<HomeScreenState, VoidCallback>(
+            converter: (store) => () => HomeScreenRedux.dispatchNewUserSearch(
+                store, state.imagesInfoEntitiesList[index].userUsername),
+            builder: (context, callback) => TextButton(
+              onPressed: callback,
+              style: ButtonStyle(
+                padding: MaterialStateProperty.resolveWith(
+                    (states) => EdgeInsets.zero),
+                overlayColor: MaterialStateColor.resolveWith(
+                    (states) => Colors.transparent),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 8.0,
+                  left: 8.0,
+                  right: 8.0,
                 ),
-                Expanded(
-                  flex: 85,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          state.imagesInfoEntitiesList[index].username,
-                          style: const TextStyle(
-                              inherit: false,
-                              color: Colors.black54,
-                              fontSize: 18.0),
-                        ),
-                        Text(
-                          "[${state.imagesInfoEntitiesList[index].userUsername}]",
-                          style: const TextStyle(
-                              inherit: false,
-                              color: Colors.black26,
-                              fontSize: 16.0),
-                        ),
-                      ],
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 15,
+                      child: Container(
+                        decoration: const BoxDecoration(shape: BoxShape.circle),
+                        clipBehavior: Clip.hardEdge,
+                        child: Image.network(
+                            state.imagesInfoEntitiesList[index].userPpLarge),
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      flex: 85,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              state.imagesInfoEntitiesList[index].username,
+                              style: const TextStyle(
+                                  inherit: false,
+                                  color: Colors.black54,
+                                  fontSize: 18.0),
+                            ),
+                            Text(
+                              "[${state.imagesInfoEntitiesList[index].userUsername}]",
+                              style: const TextStyle(
+                                  inherit: false,
+                                  color: Colors.black26,
+                                  fontSize: 16.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -255,7 +268,7 @@ class ScreenHome extends StatelessWidget {
             child: Text(
               state.searchQuery?.isEmpty ?? true
                   ? "Unsplash Client: The Sequel"
-                  : "Search: ${state.searchQuery}",
+                  : "${state.searchForUser ? "User" : "Search"}: ${state.searchQuery}",
               style: const TextStyle(
                   color: Colors.white70, fontWeight: FontWeight.bold),
             ),
@@ -307,7 +320,41 @@ class ScreenHome extends StatelessWidget {
                     flexibleSpace: Row(
                       children: [
                         Expanded(
-                          flex: 85,
+                          flex: 20,
+                          child: StoreConnector<HomeScreenState, VoidCallback>(
+                            converter: (store) =>
+                                () => HomeScreenRedux.turnSearchMode(store),
+                            builder: (context, callback) {
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: FittedBox(
+                                  child: DropdownButton<String>(
+                                    value:
+                                        state.searchForUser ? "User" : "Search",
+                                    icon: const Icon(Icons.arrow_drop_down),
+                                    underline: Container(),
+                                    onChanged: (String? newValue) {
+                                      String currentValue = state.searchForUser
+                                          ? "User"
+                                          : "Search";
+
+                                      if (newValue != currentValue) callback();
+                                    },
+                                    items: ["Search", "User"]
+                                        .map<DropdownMenuItem<String>>(
+                                            (value) => DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                ))
+                                        .toList(),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          flex: 70,
                           child: Align(
                             alignment: Alignment.bottomLeft,
                             child: Padding(
