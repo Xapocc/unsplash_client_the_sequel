@@ -24,7 +24,7 @@ abstract class HomeScreenRedux {
     }
 
     if (action == HomeScreenActions.nextPage) {
-      if (state.imagesInfoEntitiesList.isEmpty) return state;
+      if ((state.imagesInfoEntitiesList.last.maxPages ?? 1) < 0) return state;
 
       if (state.page == state.imagesInfoEntitiesList.first.maxPages) {
         return state;
@@ -50,7 +50,7 @@ abstract class HomeScreenRedux {
     }
 
     if (action == HomeScreenActions.nextPageTurbo) {
-      if (state.imagesInfoEntitiesList.isEmpty) return state;
+      if ((state.imagesInfoEntitiesList.last.maxPages ?? 1) < 0) return state;
 
       if (state.imagesInfoEntitiesList.first.maxPages != null) {
         if (state.page == state.imagesInfoEntitiesList.first.maxPages!) {

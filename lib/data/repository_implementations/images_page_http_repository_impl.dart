@@ -68,6 +68,12 @@ class ImagesPageHttpRepositoryImpl implements IImagesPageRepository {
       ));
     }
 
+    if (models.length < perPage) {
+      // end of search element
+      models.add(
+          ImageInfoModel(-1, 0, 0, "", "", "", "", "", "", "", "", "", "", ""));
+    }
+
     List<ImageInfoEntity> imageInfoEntitiesList = [];
 
     for (ImageInfoModel model in models) {

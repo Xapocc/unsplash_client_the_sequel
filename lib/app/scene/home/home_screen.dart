@@ -111,93 +111,129 @@ class ScreenHome extends StatelessWidget {
           end: Alignment.topCenter,
         ),
       ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: StoreConnector<RouterState, VoidCallback>(
-              converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
-                  store, state.imagesInfoEntitiesList[index].urlFull),
-              builder: (context, callback) => TextButton(
-                style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
-                onPressed: callback,
-                child: Image.network(
-                  state.imagesInfoEntitiesList[index].urlSmall,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingEvent) {
-                    if (loadingEvent == null) return child;
-                    return const Center(
-                      child: SizedBox(
-                          width: 100,
-                          height: 100,
-                          child: CircularProgressIndicator()),
-                    );
-                  },
+      child: imageCardContent(state, index),
+    );
+  }
+
+  Widget imageCardContent(HomeScreenState state, int index) {
+    TextStyle textStyle =
+        TextStyle(inherit: false, color: Colors.black, fontSize: 24);
+
+    if ((state.imagesInfoEntitiesList[index].maxPages ?? 1) <= 0) {
+      return AspectRatio(
+        aspectRatio: 1,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const FractionallySizedBox(
+                widthFactor: 0.3,
+                child: FittedBox(
+                  child: Icon(Icons.wallpaper),
                 ),
               ),
-            ),
+              Text(
+                "There is no more images\nfor your search.",
+                style: textStyle,
+                textAlign: TextAlign.center,
+              ),
+              Text(
+                "Try changing the search\nquery to find more.",
+                style: textStyle,
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
-          StoreConnector<HomeScreenState, VoidCallback>(
-            converter: (store) => () => HomeScreenRedux.dispatchNewUserSearch(
-                store, state.imagesInfoEntitiesList[index].userUsername),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: StoreConnector<RouterState, VoidCallback>(
+            converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
+                store, state.imagesInfoEntitiesList[index].urlFull),
             builder: (context, callback) => TextButton(
+              style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
               onPressed: callback,
-              style: ButtonStyle(
-                padding: MaterialStateProperty.resolveWith(
-                    (states) => EdgeInsets.zero),
-                overlayColor: MaterialStateColor.resolveWith(
-                    (states) => Colors.transparent),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  bottom: 8.0,
-                  left: 8.0,
-                  right: 8.0,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 15,
-                      child: Container(
-                        decoration: const BoxDecoration(shape: BoxShape.circle),
-                        clipBehavior: Clip.hardEdge,
-                        child: Image.network(
-                            state.imagesInfoEntitiesList[index].userPpLarge),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 85,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              state.imagesInfoEntitiesList[index].username,
-                              style: const TextStyle(
-                                  inherit: false,
-                                  color: Colors.black54,
-                                  fontSize: 18.0),
-                            ),
-                            Text(
-                              "[${state.imagesInfoEntitiesList[index].userUsername}]",
-                              style: const TextStyle(
-                                  inherit: false,
-                                  color: Colors.black26,
-                                  fontSize: 16.0),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              child: Image.network(
+                state.imagesInfoEntitiesList[index].urlSmall,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingEvent) {
+                  if (loadingEvent == null) return child;
+                  return const Center(
+                    child: SizedBox(
+                        width: 100,
+                        height: 100,
+                        child: CircularProgressIndicator()),
+                  );
+                },
               ),
             ),
           ),
-        ],
-      ),
+        ),
+        StoreConnector<HomeScreenState, VoidCallback>(
+          converter: (store) => () => HomeScreenRedux.dispatchNewUserSearch(
+              store, state.imagesInfoEntitiesList[index].userUsername),
+          builder: (context, callback) => TextButton(
+            onPressed: callback,
+            style: ButtonStyle(
+              padding: MaterialStateProperty.resolveWith(
+                  (states) => EdgeInsets.zero),
+              overlayColor: MaterialStateColor.resolveWith(
+                  (states) => Colors.transparent),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 8.0,
+                left: 8.0,
+                right: 8.0,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 15,
+                    child: Container(
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      clipBehavior: Clip.hardEdge,
+                      child: Image.network(
+                          state.imagesInfoEntitiesList[index].userPpLarge),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 85,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            state.imagesInfoEntitiesList[index].username,
+                            style: const TextStyle(
+                                inherit: false,
+                                color: Colors.black54,
+                                fontSize: 18.0),
+                          ),
+                          Text(
+                            "[${state.imagesInfoEntitiesList[index].userUsername}]",
+                            style: const TextStyle(
+                                inherit: false,
+                                color: Colors.black26,
+                                fontSize: 16.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -245,7 +281,7 @@ class ScreenHome extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("${state.page}", style: textStylePage1),
-                  if (maxPages != null)
+                  if ((maxPages ?? -1) > 0)
                     Text("$maxPages", style: textStylePage2),
                 ],
               ),
