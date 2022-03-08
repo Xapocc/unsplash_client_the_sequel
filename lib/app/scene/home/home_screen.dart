@@ -116,124 +116,136 @@ class ScreenHome extends StatelessWidget {
   }
 
   Widget imageCardContent(HomeScreenState state, int index) {
-    TextStyle textStyle =
-        TextStyle(inherit: false, color: Colors.black, fontSize: 24);
-
     if ((state.imagesInfoEntitiesList[index].maxPages ?? 1) <= 0) {
-      return AspectRatio(
-        aspectRatio: 1,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const FractionallySizedBox(
-                widthFactor: 0.3,
-                child: FittedBox(
-                  child: Icon(Icons.wallpaper),
-                ),
-              ),
-              Text(
-                "There is no more images\nfor your search.",
-                style: textStyle,
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                "Try changing the search\nquery to find more.",
-                style: textStyle,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
+      return endOfSearchCard();
     }
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: StoreConnector<RouterState, VoidCallback>(
-            converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
-                store, state.imagesInfoEntitiesList[index].urlFull),
-            builder: (context, callback) => TextButton(
-              style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
-              onPressed: callback,
-              child: Image.network(
-                state.imagesInfoEntitiesList[index].urlSmall,
-                fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingEvent) {
-                  if (loadingEvent == null) return child;
-                  return const Center(
-                    child: SizedBox(
-                        width: 100,
-                        height: 100,
-                        child: CircularProgressIndicator()),
-                  );
-                },
-              ),
-            ),
-          ),
-        ),
-        StoreConnector<HomeScreenState, VoidCallback>(
-          converter: (store) => () => HomeScreenRedux.dispatchNewUserSearch(
-              store, state.imagesInfoEntitiesList[index].userUsername),
-          builder: (context, callback) => TextButton(
-            onPressed: callback,
-            style: ButtonStyle(
-              padding: MaterialStateProperty.resolveWith(
-                  (states) => EdgeInsets.zero),
-              overlayColor: MaterialStateColor.resolveWith(
-                  (states) => Colors.transparent),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: 8.0,
-                left: 8.0,
-                right: 8.0,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 15,
-                    child: Container(
-                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                      clipBehavior: Clip.hardEdge,
-                      child: Image.network(
-                          state.imagesInfoEntitiesList[index].userPpLarge),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 85,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            state.imagesInfoEntitiesList[index].username,
-                            style: const TextStyle(
-                                inherit: false,
-                                color: Colors.black54,
-                                fontSize: 18.0),
-                          ),
-                          Text(
-                            "[${state.imagesInfoEntitiesList[index].userUsername}]",
-                            style: const TextStyle(
-                                inherit: false,
-                                color: Colors.black26,
-                                fontSize: 16.0),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        imageCardMainImage(state, index),
+        imageCardUserRow(state, index),
       ],
+    );
+  }
+
+  Widget imageCardMainImage(HomeScreenState state, int index) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: StoreConnector<RouterState, VoidCallback>(
+        converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
+            store, state.imagesInfoEntitiesList[index].urlFull),
+        builder: (context, callback) => TextButton(
+          style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
+          onPressed: callback,
+          child: Image.network(
+            state.imagesInfoEntitiesList[index].urlSmall,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingEvent) {
+              if (loadingEvent == null) return child;
+              return const Center(
+                child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator()),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget imageCardUserRow(HomeScreenState state, int index) {
+    return StoreConnector<HomeScreenState, VoidCallback>(
+      converter: (store) => () => HomeScreenRedux.dispatchNewUserSearch(
+          store, state.imagesInfoEntitiesList[index].userUsername),
+      builder: (context, callback) => TextButton(
+        onPressed: callback,
+        style: ButtonStyle(
+          padding:
+              MaterialStateProperty.resolveWith((states) => EdgeInsets.zero),
+          overlayColor:
+              MaterialStateColor.resolveWith((states) => Colors.transparent),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(
+            bottom: 8.0,
+            left: 8.0,
+            right: 8.0,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 15,
+                child: Container(
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  clipBehavior: Clip.hardEdge,
+                  child: Image.network(
+                      state.imagesInfoEntitiesList[index].userPpLarge),
+                ),
+              ),
+              Expanded(
+                flex: 85,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        state.imagesInfoEntitiesList[index].username,
+                        style: const TextStyle(
+                            inherit: false,
+                            color: Colors.black54,
+                            fontSize: 18.0),
+                      ),
+                      Text(
+                        "[${state.imagesInfoEntitiesList[index].userUsername}]",
+                        style: const TextStyle(
+                            inherit: false,
+                            color: Colors.black26,
+                            fontSize: 16.0),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget endOfSearchCard() {
+    TextStyle textStyle =
+        const TextStyle(inherit: false, color: Colors.black, fontSize: 24.0);
+
+    return AspectRatio(
+      aspectRatio: 1,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const FractionallySizedBox(
+              widthFactor: 0.3,
+              child: FittedBox(
+                child: Icon(Icons.wallpaper),
+              ),
+            ),
+            Text(
+              "There is no more images\nfor your search.",
+              style: textStyle,
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              "Try changing the search\nquery to find more.",
+              style: textStyle,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -298,153 +310,156 @@ class ScreenHome extends StatelessWidget {
   Widget homeAppBar(BuildContext context, HomeScreenState state) {
     return Column(
       children: [
-        AppBar(
-          backgroundColor: Colors.black87,
-          shadowColor: Colors.transparent,
-          centerTitle: false,
-          title: FittedBox(
-            child: Text(
-              state.searchQuery?.isEmpty ?? true
-                  ? "Unsplash Client: The Sequel"
-                  : "${state.searchForUser ? "User" : "Search"}: ${state.searchQuery}",
-              style: const TextStyle(
-                  color: Colors.white70, fontWeight: FontWeight.bold),
-            ),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4.0),
-              child: StoreConnector<HomeScreenState, VoidCallback>(
-                converter: (store) => () => HomeScreenRedux.dispatchAction(
-                    store, HomeScreenActions.toggleSearchField),
-                builder: (context, callback) => TextButton(
-                  onPressed: callback,
-                  style: ButtonStyle(
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white12),
-                    shape: MaterialStateProperty.resolveWith(
-                      (states) => const CircleBorder(),
-                    ),
-                  ),
-                  child: StoreConnector<HomeScreenState, bool>(
-                    converter: (store) => store.state.showSearchField,
-                    builder: (context, showSearchField) {
-                      return showSearchField
-                          ? const Icon(
-                              Icons.keyboard_arrow_up,
-                              color: Colors.white70,
-                            )
-                          : const Icon(
-                              Icons.search,
-                              color: Colors.white70,
-                            );
-                    },
-                  ),
+        homeAppBarMain(state),
+      ],
+    );
+  }
+
+  Widget homeAppBarMain(HomeScreenState state) {
+    return AppBar(
+      backgroundColor: Colors.black87,
+      shadowColor: Colors.transparent,
+      centerTitle: false,
+      title: FittedBox(
+        child: Text(
+          state.searchQuery?.isEmpty ?? true
+              ? "Unsplash Client: The Sequel"
+              : "${state.searchForUser ? "User" : "Search"}: ${state.searchQuery}",
+          style: const TextStyle(
+              color: Colors.white70, fontWeight: FontWeight.bold),
+        ),
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          child: StoreConnector<HomeScreenState, VoidCallback>(
+            converter: (store) => () => HomeScreenRedux.dispatchAction(
+                store, HomeScreenActions.toggleSearchField),
+            builder: (context, callback) => TextButton(
+              onPressed: callback,
+              style: ButtonStyle(
+                overlayColor:
+                    MaterialStateColor.resolveWith((states) => Colors.white12),
+                shape: MaterialStateProperty.resolveWith(
+                  (states) => const CircleBorder(),
                 ),
               ),
+              child: StoreConnector<HomeScreenState, bool>(
+                converter: (store) => store.state.showSearchField,
+                builder: (context, showSearchField) {
+                  return showSearchField
+                      ? const Icon(
+                          Icons.keyboard_arrow_up,
+                          color: Colors.white70,
+                        )
+                      : const Icon(
+                          Icons.search,
+                          color: Colors.white70,
+                        );
+                },
+              ),
             ),
-          ],
-        ),
-        StoreConnector<HomeScreenState, HomeScreenState>(
-          converter: (store) => store.state,
-          builder: (context, state) {
-            TextEditingController searchController =
-                TextEditingController(text: state.searchQuery);
-
-            return state.showSearchField
-                ? AppBar(
-                    backgroundColor: Colors.white,
-                    shadowColor: Colors.transparent,
-                    flexibleSpace: Row(
-                      children: [
-                        Expanded(
-                          flex: 20,
-                          child: StoreConnector<HomeScreenState, VoidCallback>(
-                            converter: (store) =>
-                                () => HomeScreenRedux.turnSearchMode(store),
-                            builder: (context, callback) {
-                              return Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: FittedBox(
-                                  child: DropdownButton<String>(
-                                    value:
-                                        state.searchForUser ? "User" : "Search",
-                                    icon: const Icon(Icons.arrow_drop_down),
-                                    underline: Container(),
-                                    onChanged: (String? newValue) {
-                                      String currentValue = state.searchForUser
-                                          ? "User"
-                                          : "Search";
-
-                                      if (newValue != currentValue) callback();
-                                    },
-                                    items: ["Search", "User"]
-                                        .map<DropdownMenuItem<String>>(
-                                            (value) => DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(value),
-                                                ))
-                                        .toList(),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          flex: 70,
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 4.0, left: 8.0, right: 8.0),
-                              child: TextField(
-                                controller: searchController,
-                                cursorColor: Colors.black87,
-                                decoration: const InputDecoration(
-                                  hintText: "Search for...",
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          flex: 15,
-                          child: AspectRatio(
-                            aspectRatio: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.all(2.0),
-                              child:
-                                  StoreConnector<HomeScreenState, VoidCallback>(
-                                converter: (store) => () {
-                                  HomeScreenRedux.dispatchNewSearch(
-                                      store, searchController.text);
-                                },
-                                builder: (context, callback) => TextButton(
-                                  style: ButtonStyle(
-                                      overlayColor:
-                                          MaterialStateColor.resolveWith(
-                                              (states) => Colors.black12),
-                                      shape: MaterialStateProperty.resolveWith(
-                                          (states) => const CircleBorder()),
-                                      foregroundColor:
-                                          MaterialStateColor.resolveWith(
-                                              (states) => Colors.black87)),
-                                  onPressed: callback,
-                                  child: const Icon(Icons.search),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : Container();
-          },
+          ),
         ),
       ],
+    );
+  }
+
+  Widget homeAppBarSearch() {
+    return StoreConnector<HomeScreenState, HomeScreenState>(
+      converter: (store) => store.state,
+      builder: (context, state) {
+        TextEditingController searchController =
+            TextEditingController(text: state.searchQuery);
+
+        return state.showSearchField
+            ? AppBar(
+                backgroundColor: Colors.white,
+                shadowColor: Colors.transparent,
+                flexibleSpace: Row(
+                  children: [
+                    Expanded(
+                      flex: 20,
+                      child: StoreConnector<HomeScreenState, VoidCallback>(
+                        converter: (store) =>
+                            () => HomeScreenRedux.turnSearchMode(store),
+                        builder: (context, callback) {
+                          return Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: FittedBox(
+                              child: DropdownButton<String>(
+                                value: state.searchForUser ? "User" : "Search",
+                                icon: const Icon(Icons.arrow_drop_down),
+                                underline: Container(),
+                                onChanged: (String? newValue) {
+                                  String currentValue =
+                                      state.searchForUser ? "User" : "Search";
+
+                                  if (newValue != currentValue) callback();
+                                },
+                                items: ["Search", "User"]
+                                    .map<DropdownMenuItem<String>>(
+                                        (value) => DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(value),
+                                            ))
+                                    .toList(),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      flex: 70,
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              top: 4.0, left: 8.0, right: 8.0),
+                          child: TextField(
+                            controller: searchController,
+                            cursorColor: Colors.black87,
+                            decoration: const InputDecoration(
+                              hintText: "Search for...",
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 15,
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.all(2.0),
+                          child: StoreConnector<HomeScreenState, VoidCallback>(
+                            converter: (store) => () {
+                              HomeScreenRedux.dispatchNewSearch(
+                                  store, searchController.text);
+                            },
+                            builder: (context, callback) => TextButton(
+                              style: ButtonStyle(
+                                  overlayColor: MaterialStateColor.resolveWith(
+                                      (states) => Colors.black12),
+                                  shape: MaterialStateProperty.resolveWith(
+                                      (states) => const CircleBorder()),
+                                  foregroundColor:
+                                      MaterialStateColor.resolveWith(
+                                          (states) => Colors.black87)),
+                              onPressed: callback,
+                              child: const Icon(Icons.search),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : Container();
+      },
     );
   }
 
