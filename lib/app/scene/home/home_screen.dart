@@ -311,6 +311,7 @@ class ScreenHome extends StatelessWidget {
     return Column(
       children: [
         homeAppBarMain(state),
+        homeAppBarSearch(),
       ],
     );
   }
