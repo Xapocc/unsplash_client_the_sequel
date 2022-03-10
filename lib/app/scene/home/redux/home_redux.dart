@@ -3,6 +3,7 @@ import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_state.dart'
 import 'package:redux/redux.dart';
 import 'package:unsplash_client_the_sequel/domain/entities/image_info_entity.dart';
 import 'package:unsplash_client_the_sequel/domain/use_cases/Images_page_use_case.dart';
+import 'package:unsplash_client_the_sequel/domain/use_cases/download_image_use_case.dart';
 
 enum HomeScreenActions {
   nextPage,
@@ -149,5 +150,9 @@ abstract class HomeScreenRedux {
       store.state,
       searchForUser: !store.state.searchForUser,
     ));
+  }
+
+  static Future<String> downloadImage(String url) async {
+    return (await GetIt.I<DownloadImageUseCase>().downloadImage(url)).filePath;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:unsplash_client_the_sequel/app/router/router_redux/router_redux.dart';
 import 'package:unsplash_client_the_sequel/app/router/router_redux/router_state.dart';
 import 'package:unsplash_client_the_sequel/app/scene/home/redux/home_redux.dart';
@@ -186,7 +187,7 @@ class ScreenHome extends StatelessWidget {
                 ),
               ),
               Expanded(
-                flex: 85,
+                flex: 75,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
@@ -210,6 +211,38 @@ class ScreenHome extends StatelessWidget {
                   ),
                 ),
               ),
+              Expanded(
+                flex: 10,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    fit: StackFit.expand,
+                    children: [
+                      const FittedBox(
+                        child: Icon(
+                          Icons.download,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      TextButton(
+                        style: ButtonStyle(
+                          padding: MaterialStateProperty.resolveWith(
+                              (states) => EdgeInsets.zero),
+                          overlayColor: MaterialStateColor.resolveWith(
+                              (states) => Colors.black26),
+                        ),
+                        onPressed: () async {
+                          Fluttertoast.showToast(
+                              msg: await HomeScreenRedux.downloadImage(
+                                  state.imagesInfoEntitiesList[index].urlFull));
+                        },
+                        child: Container(),
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
