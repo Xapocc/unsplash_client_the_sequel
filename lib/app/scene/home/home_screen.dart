@@ -143,11 +143,13 @@ class ScreenHome extends StatelessWidget {
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingEvent) {
               if (loadingEvent == null) return child;
-              return const Center(
-                child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: CircularProgressIndicator()),
+              return const AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.black54,
+                  ),
+                ),
               );
             },
           ),
