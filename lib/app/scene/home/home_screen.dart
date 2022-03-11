@@ -446,70 +446,72 @@ class ScreenHome extends StatelessWidget {
             ? AppBar(
                 backgroundColor: Colors.white,
                 shadowColor: Colors.transparent,
-                flexibleSpace: Row(
-                  children: [
-                    Expanded(
-                      flex: 20,
-                      child: StoreConnector<HomeScreenState, VoidCallback>(
-                        converter: (store) =>
-                            () => HomeScreenRedux.turnSearchMode(store),
-                        builder: (context, callback) {
-                          return Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: FittedBox(
-                              child: DropdownButton<String>(
-                                value: state.searchForUser ? "User" : "Search",
-                                icon: const Icon(Icons.arrow_drop_down),
-                                underline: Container(),
-                                onChanged: (String? newValue) {
-                                  String currentValue =
-                                      state.searchForUser ? "User" : "Search";
+                flexibleSpace: StoreConnector<HomeScreenState, VoidCallback>(
+                  converter: (store) => () {
+                    HomeScreenRedux.dispatchNewSearch(
+                        store, searchController.text);
+                  },
+                  builder: (context, callback) => Row(
+                    children: [
+                      Expanded(
+                        flex: 20,
+                        child: StoreConnector<HomeScreenState, VoidCallback>(
+                          converter: (store) =>
+                              () => HomeScreenRedux.turnSearchMode(store),
+                          builder: (context, callback) {
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: FittedBox(
+                                child: DropdownButton<String>(
+                                  value:
+                                      state.searchForUser ? "User" : "Search",
+                                  icon: const Icon(Icons.arrow_drop_down),
+                                  underline: Container(),
+                                  onChanged: (String? newValue) {
+                                    String currentValue =
+                                        state.searchForUser ? "User" : "Search";
 
-                                  if (newValue != currentValue) callback();
-                                },
-                                items: ["Search", "User"]
-                                    .map<DropdownMenuItem<String>>(
-                                        (value) => DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(value),
-                                            ))
-                                    .toList(),
+                                    if (newValue != currentValue) callback();
+                                  },
+                                  items: ["Search", "User"]
+                                      .map<DropdownMenuItem<String>>(
+                                          (value) => DropdownMenuItem<String>(
+                                                value: value,
+                                                child: Text(value),
+                                              ))
+                                      .toList(),
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 70,
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                              top: 4.0, left: 8.0, right: 8.0),
-                          child: TextField(
-                            controller: searchController,
-                            cursorColor: Colors.black87,
-                            decoration: const InputDecoration(
-                              hintText: "Search for...",
-                              border: InputBorder.none,
+                      Expanded(
+                        flex: 70,
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 4.0, left: 8.0, right: 8.0),
+                            child: TextField(
+                              onEditingComplete: callback,
+                              controller: searchController,
+                              cursorColor: Colors.black87,
+                              decoration: const InputDecoration(
+                                hintText: "Search for...",
+                                border: InputBorder.none,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 15,
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.all(2.0),
-                          child: StoreConnector<HomeScreenState, VoidCallback>(
-                            converter: (store) => () {
-                              HomeScreenRedux.dispatchNewSearch(
-                                  store, searchController.text);
-                            },
-                            builder: (context, callback) => TextButton(
+                      Expanded(
+                        flex: 15,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: TextButton(
                               style: ButtonStyle(
                                   overlayColor: MaterialStateColor.resolveWith(
                                       (states) => Colors.black12),
@@ -524,8 +526,8 @@ class ScreenHome extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               )
             : Container();
