@@ -130,22 +130,24 @@ class ScreenHome extends StatelessWidget {
   }
 
   Widget imageCardMainImage(HomeScreenState state, int index) {
+    var itemEntity = state.imagesInfoEntitiesList[index];
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: StoreConnector<RouterState, VoidCallback>(
-        converter: (store) => () => RouterRedux.goToPicturePreviewScreen(
-            store, state.imagesInfoEntitiesList[index].urlFull),
+        converter: (store) => () =>
+            RouterRedux.goToPicturePreviewScreen(store, itemEntity.urlFull),
         builder: (context, callback) => TextButton(
           style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
           onPressed: callback,
           child: Image.network(
-            state.imagesInfoEntitiesList[index].urlSmall,
+            itemEntity.urlSmall,
             fit: BoxFit.cover,
             loadingBuilder: (context, child, loadingEvent) {
               if (loadingEvent == null) return child;
-              return const AspectRatio(
-                aspectRatio: 1,
-                child: Center(
+              return AspectRatio(
+                aspectRatio: itemEntity.width / itemEntity.height,
+                child: const Center(
                   child: CircularProgressIndicator(
                     color: Colors.black54,
                   ),
@@ -409,8 +411,23 @@ class ScreenHome extends StatelessWidget {
             converter: (store) => () {
               HomeScreenRedux.dispatchNewSearch(store, "");
             },
-            builder: (context, callback) =>
-                TextButton(onPressed: callback, child: Icon(Icons.close)),
+            builder: (context, callback) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: TextButton(
+                style: ButtonStyle(
+                  overlayColor: MaterialStateColor.resolveWith(
+                      (states) => Colors.white12),
+                  shape: MaterialStateProperty.resolveWith(
+                    (states) => const CircleBorder(),
+                  ),
+                ),
+                onPressed: callback,
+                child: const Icon(
+                  Icons.close,
+                  color: Colors.white70,
+                ),
+              ),
+            ),
           )
         : null;
   }
