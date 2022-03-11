@@ -356,6 +356,8 @@ class ScreenHome extends StatelessWidget {
       backgroundColor: Colors.black87,
       shadowColor: Colors.transparent,
       centerTitle: false,
+      leading: homeAppBarCleanQueryButton(
+          state.searchQuery != null && state.searchQuery!.isNotEmpty),
       title: FittedBox(
         child: Text(
           state.searchQuery?.isEmpty ?? true
@@ -399,6 +401,18 @@ class ScreenHome extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Widget? homeAppBarCleanQueryButton(bool show) {
+    return show
+        ? StoreConnector<HomeScreenState, VoidCallback>(
+            converter: (store) => () {
+              HomeScreenRedux.dispatchNewSearch(store, "");
+            },
+            builder: (context, callback) =>
+                TextButton(onPressed: callback, child: Icon(Icons.close)),
+          )
+        : null;
   }
 
   Widget homeAppBarSearch() {

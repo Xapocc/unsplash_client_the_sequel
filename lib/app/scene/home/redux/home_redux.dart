@@ -123,6 +123,8 @@ abstract class HomeScreenRedux {
       searchQuery: searchQuery,
       isLoadingCompleted: false,
       page: 1,
+      showSearchField: false,
+      hideAppBar: false,
     ));
   }
 
@@ -134,6 +136,8 @@ abstract class HomeScreenRedux {
       isLoadingCompleted: false,
       page: 1,
       searchForUser: true,
+      showSearchField: false,
+      hideAppBar: false,
     ));
   }
 
