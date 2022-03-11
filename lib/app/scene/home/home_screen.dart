@@ -408,6 +408,9 @@ class ScreenHome extends StatelessWidget {
         TextEditingController searchController =
             TextEditingController(text: state.searchQuery);
 
+        searchController.selection = TextSelection.fromPosition(
+            TextPosition(offset: searchController.text.length));
+
         return state.showSearchField
             ? AppBar(
                 backgroundColor: Colors.white,
