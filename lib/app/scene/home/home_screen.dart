@@ -31,7 +31,7 @@ class ScreenHome extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: [
           mainListView(state),
-          navigationButtons(context, state),
+          navigationBar(context, state),
           Align(
             alignment: Alignment.topCenter,
             child: Visibility(
@@ -65,42 +65,112 @@ class ScreenHome extends StatelessWidget {
       builder: (context, callback) {
         ScrollController controller = ScrollController();
 
-        int listLength = state.imagesInfoEntitiesList.length;
+        controller.addListener(
+          () {
+            if (!controller.hasClients) return;
 
-        controller.addListener(() {
-          if (!controller.hasClients) return;
+            if (controller.position.userScrollDirection.name == "reverse" &&
+                state.hideAppBar == false) {
+              callback();
+            }
 
-          if (controller.position.userScrollDirection.name == "reverse" &&
-              state.hideAppBar == false) {
-            callback();
-          }
+            if (controller.position.userScrollDirection.name == "forward" &&
+                state.hideAppBar == true) {
+              callback();
+            }
+          },
+        );
 
-          if (controller.position.userScrollDirection.name == "forward" &&
-              state.hideAppBar == true) {
-            callback();
-          }
-        });
+        return OrientationBuilder(
+          builder: (context, orientation) {
+            bool isPortrait = orientation.index == 0;
 
-        return ListView.builder(
-          controller: controller,
-          physics: const ClampingScrollPhysics(),
-          itemCount: listLength,
-          itemBuilder: (BuildContext context, int index) => Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (index == 0 && !state.hideAppBar)
-                SizedBox(
-                  height: AppBar().preferredSize.height *
-                      (state.showSearchField ? 2 : 1),
-                ),
-              imageCard(state, index),
-              if (index == listLength - 1)
-                Container(height: MediaQuery.of(context).size.width * 0.15),
-            ],
-          ),
+            List<List<int>> separatedLists =
+                isPortrait ? [] : listSeparation(state);
+
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              controller: controller,
+              child: isPortrait
+                  ? Column(
+                      children: getImagesSublist(state),
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            children:
+                                getImagesSublist(state, separatedLists.first),
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            children:
+                                getImagesSublist(state, separatedLists.last),
+                          ),
+                        ),
+                      ],
+                    ),
+            );
+          },
         );
       },
     );
+  }
+
+  List<Widget> getImagesSublist(HomeScreenState state,
+      [List<int> indexes = const []]) {
+    int totalLength = state.imagesInfoEntitiesList.length;
+
+    List<Widget> list = [];
+
+    for (int i = 0; i < totalLength; i++) {
+      if (indexes.isNotEmpty && !indexes.contains(i)) continue;
+
+      list.add(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (list.isEmpty && !state.hideAppBar)
+              SizedBox(
+                height: AppBar().preferredSize.height *
+                    (state.showSearchField ? 2 : 1),
+              ),
+            imageCard(state, i),
+            if (i == totalLength - 1)
+              Container(height: AppBar().preferredSize.height),
+          ],
+        ),
+      );
+    }
+
+    return list;
+  }
+
+  List<List<int>> listSeparation(HomeScreenState state) {
+    var initialList = state.imagesInfoEntitiesList;
+    List<int> firstList = [];
+    List<int> secondList = [];
+
+    double first = 0, second = 0;
+
+    first += initialList.first.height / initialList.first.width;
+    firstList.add(0);
+
+    for (int i = 1; i < initialList.length; i++) {
+      if (first < second) {
+        first +=
+            initialList.elementAt(i).height / initialList.elementAt(i).width;
+        firstList.add(i);
+      } else {
+        second +=
+            initialList.elementAt(i).height / initialList.elementAt(i).width;
+        secondList.add(i);
+      }
+    }
+
+    return [firstList, secondList];
   }
 
   Widget imageCard(HomeScreenState state, int index) {
@@ -122,6 +192,7 @@ class ScreenHome extends StatelessWidget {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         imageCardMainImage(state, index),
         imageCardUserRow(state, index),
@@ -140,20 +211,25 @@ class ScreenHome extends StatelessWidget {
         builder: (context, callback) => TextButton(
           style: TextButton.styleFrom(padding: const EdgeInsets.all(0)),
           onPressed: callback,
-          child: Image.network(
-            itemEntity.urlSmall,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingEvent) {
-              if (loadingEvent == null) return child;
-              return AspectRatio(
-                aspectRatio: itemEntity.width / itemEntity.height,
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.black54,
-                  ),
-                ),
-              );
-            },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Image.network(
+                itemEntity.urlSmall,
+                fit: BoxFit.fill,
+                loadingBuilder: (context, child, loadingEvent) {
+                  if (loadingEvent == null) return child;
+                  return AspectRatio(
+                    aspectRatio: itemEntity.width / itemEntity.height,
+                    child: const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.black54,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -187,7 +263,9 @@ class ScreenHome extends StatelessWidget {
                   decoration: const BoxDecoration(shape: BoxShape.circle),
                   clipBehavior: Clip.hardEdge,
                   child: Image.network(
-                      state.imagesInfoEntitiesList[index].userPpLarge),
+                    state.imagesInfoEntitiesList[index].userPpLarge,
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ),
               Expanded(
@@ -286,7 +364,7 @@ class ScreenHome extends StatelessWidget {
     );
   }
 
-  Widget navigationButtons(BuildContext context, HomeScreenState state) {
+  Widget navigationBar(BuildContext context, HomeScreenState state) {
     TextStyle textStyle = const TextStyle(
         inherit: false, fontWeight: FontWeight.bold, fontSize: 20.0);
 
@@ -307,7 +385,7 @@ class ScreenHome extends StatelessWidget {
         : null;
 
     return Container(
-      height: MediaQuery.of(context).size.width * 0.15,
+      height: AppBar().preferredSize.height,
       color: Colors.black38,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -569,3 +647,82 @@ class ScreenHome extends StatelessWidget {
     );
   }
 }
+
+//
+// Widget mainListView(HomeScreenState state) {
+//   return StoreConnector<HomeScreenState, VoidCallback>(
+//     converter: (store) => () => HomeScreenRedux.turnAppBar(store),
+//     builder: (context, callback) {
+//       ScrollController controller = ScrollController();
+//
+//       int listLength = state.imagesInfoEntitiesList.length;
+//
+//       controller.addListener(() {
+//         if (!controller.hasClients) return;
+//
+//         if (controller.position.userScrollDirection.name == "reverse" &&
+//             state.hideAppBar == false) {
+//           callback();
+//         }
+//
+//         if (controller.position.userScrollDirection.name == "forward" &&
+//             state.hideAppBar == true) {
+//           callback();
+//         }
+//       });
+//
+//       return OrientationBuilder(builder: (context, orientation) {
+//         bool isPortrait = orientation.index == 0;
+//
+//         return Row(
+//           children: [
+//             Expanded(
+//               child: ListView.builder(
+//                 controller: controller,
+//                 physics: const ClampingScrollPhysics(),
+//                 itemCount: listLength,
+//                 itemBuilder: (BuildContext context, int index) {
+//                   return Column(
+//                     crossAxisAlignment: CrossAxisAlignment.stretch,
+//                     children: [
+//                       if (index == 0 && !state.hideAppBar)
+//                         SizedBox(
+//                           height: AppBar().preferredSize.height *
+//                               (state.showSearchField ? 2 : 1),
+//                         ),
+//                       imageCard(state, index),
+//                       if (index == listLength - 1)
+//                         Container(height: AppBar().preferredSize.height),
+//                     ],
+//                   );
+//                 },
+//               ),
+//             ),
+//             Expanded(
+//               child: ListView.builder(
+//                 controller: controller,
+//                 physics: const ClampingScrollPhysics(),
+//                 itemCount: listLength,
+//                 itemBuilder: (BuildContext context, int index) {
+//                   return Column(
+//                     crossAxisAlignment: CrossAxisAlignment.stretch,
+//                     children: [
+//                       if (index == 0 && !state.hideAppBar)
+//                         SizedBox(
+//                           height: AppBar().preferredSize.height *
+//                               (state.showSearchField ? 2 : 1),
+//                         ),
+//                       imageCard(state, index),
+//                       if (index == listLength - 1)
+//                         Container(height: AppBar().preferredSize.height),
+//                     ],
+//                   );
+//                 },
+//               ),
+//             ),
+//           ],
+//         );
+//       });
+//     },
+//   );
+// }
