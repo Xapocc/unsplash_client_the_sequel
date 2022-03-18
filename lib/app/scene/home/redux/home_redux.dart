@@ -141,14 +141,6 @@ abstract class HomeScreenRedux {
     ));
   }
 
-  static void turnAppBar(Store<HomeScreenState> store) {
-    store.dispatch(HomeScreenState.fromState(
-      store.state,
-      hideAppBar: !store.state.hideAppBar,
-      showSearchField: false,
-    ));
-  }
-
   static void turnSearchMode(Store<HomeScreenState> store) {
     store.dispatch(HomeScreenState.fromState(
       store.state,

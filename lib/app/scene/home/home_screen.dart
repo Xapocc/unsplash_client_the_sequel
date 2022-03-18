@@ -25,19 +25,18 @@ class ScreenHome extends StatelessWidget {
   }
 
   Widget dataScreen(BuildContext context, HomeScreenState state) {
+    ScrollController sharedController = ScrollController();
+
     return Container(
       color: Colors.black12,
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          mainListView(state),
+          mainListView(context, state, sharedController),
           navigationBar(context, state),
           Align(
             alignment: Alignment.topCenter,
-            child: Visibility(
-              visible: !state.hideAppBar,
-              child: homeAppBar(context, state),
-            ),
+            child: homeAppBar(context, state, sharedController),
           ),
         ],
       ),
@@ -59,61 +58,59 @@ class ScreenHome extends StatelessWidget {
     );
   }
 
-  Widget mainListView(HomeScreenState state) {
-    return StoreConnector<HomeScreenState, VoidCallback>(
-      converter: (store) => () => HomeScreenRedux.turnAppBar(store),
-      builder: (context, callback) {
-        ScrollController controller = ScrollController();
+  Widget mainListView(BuildContext context, HomeScreenState state,
+      ScrollController sharedController) {
+    ScrollController controller = ScrollController();
 
-        controller.addListener(
-          () {
-            if (!controller.hasClients) return;
+    double offset = 0;
 
-            if (controller.position.userScrollDirection.name == "reverse" &&
-                state.hideAppBar == false) {
-              callback();
-            }
+    controller.addListener(
+      () {
+        if (!controller.hasClients) return;
 
-            if (controller.position.userScrollDirection.name == "forward" &&
-                state.hideAppBar == true) {
-              callback();
-            }
-          },
-        );
+        if (sharedController.hasClients) {
+          double newOffset =
+              sharedController.offset - (offset - controller.offset);
+          newOffset = newOffset.clamp(0, 56 * (state.showSearchField ? 2 : 1));
 
-        return OrientationBuilder(
-          builder: (context, orientation) {
-            bool isPortrait = orientation.index == 0;
+          sharedController.jumpTo(newOffset);
 
-            List<List<int>> separatedLists =
-                isPortrait ? [] : listSeparation(state);
+          print("${offset - controller.offset} -> ${sharedController.offset}");
+        }
 
-            return SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              controller: controller,
-              child: isPortrait
-                  ? Column(
-                      children: getImagesSublist(state),
-                    )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            children:
-                                getImagesSublist(state, separatedLists.first),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            children:
-                                getImagesSublist(state, separatedLists.last),
-                          ),
-                        ),
-                      ],
+        offset = controller.offset;
+      },
+    );
+
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        bool isPortrait = orientation.index == 0;
+
+        List<List<int>> separatedLists =
+            isPortrait ? [] : listSeparation(state);
+
+        return SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          controller: controller,
+          child: isPortrait
+              ? Column(
+                  children: getImagesSublist(state),
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        children: getImagesSublist(state, separatedLists.first),
+                      ),
                     ),
-            );
-          },
+                    Expanded(
+                      child: Column(
+                        children: getImagesSublist(state, separatedLists.last),
+                      ),
+                    ),
+                  ],
+                ),
         );
       },
     );
@@ -134,16 +131,15 @@ class ScreenHome extends StatelessWidget {
           children: [
             if (list.isEmpty && !state.hideAppBar)
               SizedBox(
-                height: AppBar().preferredSize.height *
-                    (state.showSearchField ? 2 : 1),
+                height: AppBar().preferredSize.height,
               ),
             imageCard(state, i),
-            if (i == totalLength - 1)
-              Container(height: AppBar().preferredSize.height),
           ],
         ),
       );
     }
+
+    list.add(Container(height: AppBar().preferredSize.height));
 
     return list;
   }
@@ -422,12 +418,23 @@ class ScreenHome extends StatelessWidget {
     );
   }
 
-  Widget homeAppBar(BuildContext context, HomeScreenState state) {
-    return Column(
-      children: [
-        homeAppBarMain(state),
-        homeAppBarSearch(),
-      ],
+  Widget homeAppBar(BuildContext context, HomeScreenState state,
+      ScrollController sharedController) {
+    return SizedBox(
+      height: AppBar().preferredSize.height * (state.showSearchField ? 2 : 1),
+      child: SingleChildScrollView(
+        controller: sharedController,
+        physics: const NeverScrollableScrollPhysics(),
+        child: SizedBox(
+          height: AppBar().preferredSize.height * 4,
+          child: Column(
+            children: [
+              homeAppBarMain(state),
+              homeAppBarSearch(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -529,82 +536,87 @@ class ScreenHome extends StatelessWidget {
                     HomeScreenRedux.dispatchNewSearch(
                         store, searchController.text);
                   },
-                  builder: (context, callback) => Row(
-                    children: [
-                      Expanded(
-                        flex: 20,
-                        child: StoreConnector<HomeScreenState, VoidCallback>(
-                          converter: (store) =>
-                              () => HomeScreenRedux.turnSearchMode(store),
-                          builder: (context, callback) {
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: FittedBox(
-                                child: DropdownButton<String>(
-                                  value:
-                                      state.searchForUser ? "User" : "Search",
-                                  icon: const Icon(Icons.arrow_drop_down),
-                                  underline: Container(),
-                                  onChanged: (String? newValue) {
-                                    String currentValue =
-                                        state.searchForUser ? "User" : "Search";
+                  builder: (context, callback) => SizedBox(
+                    height: AppBar().preferredSize.height,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 20,
+                          child: StoreConnector<HomeScreenState, VoidCallback>(
+                            converter: (store) =>
+                                () => HomeScreenRedux.turnSearchMode(store),
+                            builder: (context, callback) {
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: FittedBox(
+                                  child: DropdownButton<String>(
+                                    value:
+                                        state.searchForUser ? "User" : "Search",
+                                    icon: const Icon(Icons.arrow_drop_down),
+                                    underline: Container(),
+                                    onChanged: (String? newValue) {
+                                      String currentValue = state.searchForUser
+                                          ? "User"
+                                          : "Search";
 
-                                    if (newValue != currentValue) callback();
-                                  },
-                                  items: ["Search", "User"]
-                                      .map<DropdownMenuItem<String>>(
-                                          (value) => DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              ))
-                                      .toList(),
+                                      if (newValue != currentValue) callback();
+                                    },
+                                    items: ["Search", "User"]
+                                        .map<DropdownMenuItem<String>>(
+                                            (value) => DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                ))
+                                        .toList(),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        Expanded(
+                          flex: 70,
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 4.0, left: 8.0, right: 8.0),
+                              child: TextField(
+                                onEditingComplete: callback,
+                                controller: searchController,
+                                cursorColor: Colors.black87,
+                                decoration: const InputDecoration(
+                                  hintText: "Search for...",
+                                  border: InputBorder.none,
                                 ),
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 70,
-                        child: Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                top: 4.0, left: 8.0, right: 8.0),
-                            child: TextField(
-                              onEditingComplete: callback,
-                              controller: searchController,
-                              cursorColor: Colors.black87,
-                              decoration: const InputDecoration(
-                                hintText: "Search for...",
-                                border: InputBorder.none,
+                        Expanded(
+                          flex: 15,
+                          child: AspectRatio(
+                            aspectRatio: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(2.0),
+                              child: TextButton(
+                                style: ButtonStyle(
+                                    overlayColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => Colors.black12),
+                                    shape: MaterialStateProperty.resolveWith(
+                                        (states) => const CircleBorder()),
+                                    foregroundColor:
+                                        MaterialStateColor.resolveWith(
+                                            (states) => Colors.black87)),
+                                onPressed: callback,
+                                child: const Icon(Icons.search),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 15,
-                        child: AspectRatio(
-                          aspectRatio: 1,
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: TextButton(
-                              style: ButtonStyle(
-                                  overlayColor: MaterialStateColor.resolveWith(
-                                      (states) => Colors.black12),
-                                  shape: MaterialStateProperty.resolveWith(
-                                      (states) => const CircleBorder()),
-                                  foregroundColor:
-                                      MaterialStateColor.resolveWith(
-                                          (states) => Colors.black87)),
-                              onPressed: callback,
-                              child: const Icon(Icons.search),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               )
