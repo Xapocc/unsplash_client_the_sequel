@@ -1,6 +1,4 @@
-import 'dart:convert';
-
-import 'package:http/http.dart';
+import 'package:dio/dio.dart';
 import 'package:unsplash_client_the_sequel/data/mappers/image_info_mapper.dart';
 import 'package:unsplash_client_the_sequel/data/models/image_info_model.dart';
 import 'package:unsplash_client_the_sequel/domain/entities/image_info_entity.dart';
@@ -19,17 +17,37 @@ class ImagesPageHttpRepositoryImpl implements IImagesPageRepository {
     bool isQueryEmpty = query == null || query.isEmpty;
 
     var response = isQueryEmpty
-        ? await get(Uri.parse(
-            'https://api.unsplash.com/photos?page=$page&per_page=$perPage&client_id=$apiKey'))
+        ? await Dio().get(
+            'https://api.unsplash.com/photos',
+            queryParameters: {
+              "page": page,
+              "per_page": perPage,
+              "client_id": apiKey
+            },
+          )
         : searchForUser
-            ? await get(Uri.parse(
-                'https://api.unsplash.com/users/$query/photos?page=$page&per_page=$perPage&client_id=$apiKey'))
-            : await get(Uri.parse(
-                'https://api.unsplash.com/search/photos?page=$page&query=$query&per_page=$perPage&client_id=$apiKey'));
+            ? await Dio().get(
+                'https://api.unsplash.com/users/$query/photos',
+                queryParameters: {
+                  "page": page,
+                  "per_page": perPage,
+                  "client_id": apiKey
+                },
+              )
+            : await Dio().get(
+                'https://api.unsplash.com/search/photos',
+                queryParameters: {
+                  "page": page,
+                  "query": query,
+                  "per_page": perPage,
+                  "client_id": apiKey
+                },
+              );
 
     isQueryEmpty = isQueryEmpty || searchForUser;
 
-    dynamic jsonResponse = jsonDecode(response.body);
+    dynamic jsonResponse = response.data;
+
     List<ImageInfoModel> models = [];
 
     for (Map<String, dynamic> item

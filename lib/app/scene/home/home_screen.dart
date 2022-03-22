@@ -75,7 +75,6 @@ class ScreenHome extends StatelessWidget {
 
           sharedController.jumpTo(newOffset);
 
-          print("${offset - controller.offset} -> ${sharedController.offset}");
         }
 
         offset = controller.offset;
