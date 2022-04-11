@@ -6,9 +6,11 @@ import 'package:unsplash_client_the_sequel/domain/repository_interfaces/images_p
 
 class DataDependencyInjection {
   DataDependencyInjection(GetIt getIt) {
-    getIt.registerSingleton<IImagesPageRepository>(
-        ImagesPageHttpRepositoryImpl());
-    getIt.registerSingleton<IDownloadImageRepository>(
-        DownloadImageRepositoryImpl());
+    getIt.registerSingletonAsync<IImagesPageRepository>(() async {
+      return ImagesPageHttpRepositoryImpl();
+    });
+    getIt.registerSingletonAsync<IDownloadImageRepository>(() async {
+      return DownloadImageRepositoryImpl();
+    });
   }
 }
