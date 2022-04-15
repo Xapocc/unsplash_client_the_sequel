@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:unsplash_client_the_sequel/data/mappers/image_info_mapper.dart';
+import 'package:unsplash_client_the_sequel/data/models/api_response_model.dart';
 import 'package:unsplash_client_the_sequel/data/models/image_info_model.dart';
 import 'package:unsplash_client_the_sequel/domain/entities/image_info_entity.dart';
 import 'package:unsplash_client_the_sequel/domain/repository_interfaces/images_page_repository_interface.dart';
@@ -52,37 +53,23 @@ class ImagesPageHttpRepositoryImpl implements IImagesPageRepository {
 
     for (Map<String, dynamic> item
         in isQueryEmpty ? jsonResponse : jsonResponse["results"]) {
-      int width = item["width"];
-      int height = item["height"];
-
-      List<String> urls = [];
-      for (String url in item["urls"].values) {
-        urls.add(url);
-      }
-
-      String userUsername = item["user"]["username"];
-      String username = item["user"]["name"];
-
-      List<String> profilePictures = [];
-      for (String pp in item["user"]["profile_image"].values) {
-        profilePictures.add(pp);
-      }
+      ApiResponseModel responseModel = ApiResponseModel.fromJson(item);
 
       models.add(ImageInfoModel(
         models.isEmpty && !isQueryEmpty ? jsonResponse["total_pages"] : null,
-        width.toDouble(),
-        height.toDouble(),
-        urls[0],
-        urls[1],
-        urls[2],
-        urls[3],
-        urls[4],
-        urls[5],
-        userUsername,
-        username,
-        profilePictures[0],
-        profilePictures[1],
-        profilePictures[2],
+        responseModel.width,
+        responseModel.height,
+        responseModel.urlRaw,
+        responseModel.urlFull,
+        responseModel.urlRegular,
+        responseModel.urlSmall,
+        responseModel.urlThumb,
+        responseModel.urlSmallS3,
+        responseModel.userUsername,
+        responseModel.username,
+        responseModel.userPpSmall,
+        responseModel.userPpMedium,
+        responseModel.userPpLarge,
       ));
     }
 
